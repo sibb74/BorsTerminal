@@ -36,8 +36,8 @@ def build_sidecar():
 
     output_path = tauri_bin_dir / binary_name
 
-    print(f"🚀 Building PyInstaller sidecar binary for target: {target_triple}")
-    print(f"Output binary will be: {output_path}")
+    print(f"Building PyInstaller sidecar binary for target: {target_triple}")
+    print(f"Output binary: {output_path}")
 
     # Hidden imports required for Uvicorn, FastAPI, Pandas, and YFinance
     hidden_imports = [
@@ -76,9 +76,9 @@ def build_sidecar():
     result = subprocess.run(pyinstaller_cmd, cwd=root_dir)
 
     if result.returncode == 0:
-        print(f"✅ Sidecar binary built successfully at: {output_path}")
+        print(f"Sidecar binary built successfully at: {output_path}")
     else:
-        print("❌ Failed to build PyInstaller sidecar binary.")
+        print("Failed to build PyInstaller sidecar binary.")
         sys.exit(result.returncode)
 
 if __name__ == "__main__":

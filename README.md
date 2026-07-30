@@ -1,4 +1,4 @@
-# 📈 BörsTerminal – Open Source Desktop Aktieterminal
+# BörsTerminal – Open Source Desktop Aktieterminal
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Tauri v2](https://img.shields.io/badge/Tauri-v2-blue.svg)](https://tauri.app)
@@ -6,24 +6,24 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.111-emerald.svg)](https://fastapi.tiangolo.com)
 [![BörsAPI](https://img.shields.io/badge/B%C3%B6rsAPI-Powered-emerald.svg)](https://borsapi.se)
 
-**BörsTerminal** är en öppen, blixtsnabb desktop-applikation för finansiell aktieanalys av svenska noterade bolag. Appen fungerar både som en professionell analysutrustning och som referensimplementation för [BörsAPI](https://borsapi.se).
+**BörsTerminal** är en öppen desktop-applikation för finansiell aktieanalys av svenska noterade bolag. Applikationen fungerar både som ett analysverktyg och som referensimplementation för [BörsAPI](https://borsapi.se).
 
 Släppt under **MIT-licensen** för att uppmuntra finansiell källkodsinnovation på den svenska marknaden.
 
 ---
 
-## 🌟 Höjdpunkter & Funktioner
+## Höjdpunkter och Funktioner
 
-* 🖥️ **Classic Finance UI:** Mörkt, stilrent och kompakt gränssnitt optimerat för hög informationstäthet (React 18, Tailwind CSS, `shadcn/ui`).
-* 📊 **TradingView Lightweight Charts:** Interaktiva Candlestick-kurser, volym-histogram samt tekniska medelvärden (SMA 50 och SMA 200).
-* 🐍 **Python Sidecar & Pandas Engine:** Lokal FastAPI-sidecar som räknar ut **TTM (Trailing Twelve Months)** för omsättning och vinst, samt P/E, P/S, EBIT-marginal och fritt kassaflöde.
-* 💾 **Lokal SQLite L1 Cache:** Blixtsnabb appstart i WAL-läge som minimerar anrop mot externa servrar.
-* 🎁 **Out-of-the-Box Demo Mode:** Levereras med komplett historisk frödata för 5 svenska storbolag (*Volvo AB*, *Investor AB*, *H&M*, *SEB*, *Sandvik*) utan krav på nyckel.
-* 🔑 **BörsAPI Live Integration:** Friktionsfri länk till [BörsAPI](https://borsapi.se) för att hämta en gratis API-nyckel (100 anrop) och låsa upp hela den svenska marknaden.
+* **Classic Finance UI:** Mörkt, stilrent och kompakt gränssnitt optimerat för hög informationstäthet (React 18, Tailwind CSS, `shadcn/ui`).
+* **TradingView Lightweight Charts:** Interaktiva Candlestick-kurser, volymhistogram samt tekniska medelvärden (SMA 50 och SMA 200).
+* **Python Sidecar och Pandas Engine:** Lokal FastAPI-sidecar som räknar ut **TTM (Trailing Twelve Months)** för omsättning och vinst, samt P/E, P/S, EBIT-marginal och fritt kassaflöde.
+* **Lokal SQLite L1 Cache:** Snabb appstart i WAL-läge som minimerar anrop mot externa servrar.
+* **Out-of-the-Box Demo Mode:** Levereras med komplett historisk frödata för 5 svenska storbolag (*Volvo AB*, *Investor AB*, *H&M*, *SEB*, *Sandvik*) utan krav på nyckel.
+* **BörsAPI Live Integration:** Länk till [BörsAPI](https://borsapi.se) för att hämta en gratis API-nyckel (100 anrop) och låsa upp hela den svenska marknaden.
 
 ---
 
-## 🏛️ Systemarkitektur
+## Systemarkitektur
 
 ```mermaid
 flowchart TD
@@ -56,40 +56,40 @@ flowchart TD
 
 ---
 
-## ⚡ Snabbstart för Utvecklare
+## Snabbstart för Utvecklare
 
 ### Förutsättningar
-* **Node.js** (v18+) & **npm**
+* **Node.js** (v18+) och **npm**
 * **Python** (v3.10+)
 * **Rust** (endast om du vill bygga den installerbara Tauri-binären)
 
-### Installation & Lokal Utveckling
+### Installation och Lokal Utveckling
 
 ```bash
 # 1. Klona repositoryt
-git clone https://github.com/emilgustavsson/BorsTerminal.git
+git clone https://github.com/sibb74/BorsTerminal.git
 cd BorsTerminal
 
 # 2. Installera Frontend-dependencies
 npm install
 
-# 3. Sätt upp Python-miljö & installera backend-dependencies
+# 3. Sätt upp Python-miljö och installera backend-dependencies
 python3 -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+source .venv/bin/activate  # På Windows: .venv\Scripts\activate
 pip install -r src-sidecar/requirements.txt
 
-# 4. Starta utvecklingsmiljön (1-command: startar FastAPI & Vite)
+# 4. Starta utvecklingsmiljön (FastAPI och Vite)
 npm run dev
 ```
 
-För att starta appen i ett riktigt Tauri desktop-fönster:
+För att starta appen i ett Tauri desktop-fönster:
 ```bash
 npm run tauri dev
 ```
 
 ---
 
-## 📦 Bygga för Release (.dmg / .msi)
+## Bygga för Release (.dmg / .msi)
 
 För att kompilera Python-sidecarn med PyInstaller och bygga installerbara paket för macOS eller Windows:
 
@@ -104,12 +104,12 @@ npm run tauri build
 
 ---
 
-## 🤝 Bidra & Community
+## Bidra och Community
 
-Vill du lägga till en ny teknisk indikator eller förbättra tabellvisningen? Läs vår [CONTRIBUTING.md](CONTRIBUTING.md) guide!
+Vill du lägga till en ny teknisk indikator eller förbättra tabellvisningen? Läs vår [CONTRIBUTING.md](CONTRIBUTING.md) guide.
 
 ---
 
-## 📜 Licens
+## Licens
 
-Släppt under [MIT-licensen](LICENSE). © 2026 BörsTerminal Contributors & [BörsAPI](https://borsapi.se).
+Släppt under [MIT-licensen](LICENSE). © 2026 BörsTerminal Contributors och [BörsAPI](https://borsapi.se).

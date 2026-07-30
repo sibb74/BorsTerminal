@@ -1,24 +1,24 @@
-# 🤝 Bidra till BörsTerminal (Contributing Guide)
+# Bidra till BörsTerminal (Contributing Guide)
 
-Tack för att du vill bidra till **BörsTerminal**! 🚀  
-BörsTerminal är ett öppet (MIT-licensierat) projekt med målet att skapa Sveriges bästa desktop-terminal för aktieanalys.
+Tack för att du vill bidra till **BörsTerminal**.  
+BörsTerminal är ett öppet (MIT-licensierat) projekt med målet att skapa en högkvalitativ desktop-terminal för svensk aktieanalys.
 
- oavsett om du vill lägga till en ny teknisk indikator i Python, förbättra React-gränssnittet eller optimera SQLite-cachen – alla bidrag är välkomna!
+Oavsett om du vill lägga till en ny teknisk indikator i Python, förbättra React-gränssnittet eller optimera SQLite-cachen – alla bidrag är välkomna.
 
 ---
 
-## 🛠️ Lokal Utvecklingsmiljö
+## Lokal Utvecklingsmiljö
 
-### 1. Klona projektet & installera dependencies
+### 1. Klona projektet och installera dependencies
 
 ```bash
-git clone https://github.com/emilgustavsson/BorsTerminal.git
+git clone https://github.com/sibb74/BorsTerminal.git
 cd BorsTerminal
 
 # Installera Frontend-dependencies
 npm install
 
-# Skapa Python Virtual Environment & installera backend-dependencies
+# Skapa Python Virtual Environment och installera backend-dependencies
 python3 -m venv .venv
 source .venv/bin/activate  # På Windows: .venv\Scripts\activate
 pip install -r src-sidecar/requirements.txt
@@ -31,16 +31,16 @@ pip install -r src-sidecar/requirements.txt
 npm run dev
 ```
 
-För att starta appen i ett riktigt Tauri desktop-fönster:
+För att starta appen i ett Tauri desktop-fönster:
 ```bash
 npm run tauri dev
 ```
 
 ---
 
-## 🐍 Hur man lägger till en ny indikator i Python
+## Hur man lägger till en ny indikator i Python
 
-Alla finansiella indikatorer och nyckeltalsberäkningar bor i [`src-sidecar/app/services/indicator_engine.py`](file:///Users/emilgustavsson/Documents/BorsTerminal/src-sidecar/app/services/indicator_engine.py).
+Alla finansiella indikatorer och nyckeltalsberäkningar finns i [`src-sidecar/app/services/indicator_engine.py`](file:///Users/emilgustavsson/Documents/BorsTerminal/src-sidecar/app/services/indicator_engine.py).
 
 För att lägga till en ny indikator (t.ex. RSI eller MACD):
 1. Öppna `indicator_engine.py`.
@@ -50,7 +50,7 @@ För att lägga till en ny indikator (t.ex. RSI eller MACD):
 
 ---
 
-## 📋 Pull Request (PR) Riktlinjer
+## Pull Request (PR) Riktlinjer
 
 1. **Skapa en feature branch:** `git checkout -b feature/min-nya-indikator`
 2. **Skriv ren och typad kod:** Använd TypeScript i frontenden och typ-hints i Python (`mypy` / FastAPI).
@@ -59,6 +59,6 @@ För att lägga till en ny indikator (t.ex. RSI eller MACD):
 
 ---
 
-## 💡 Har du frågor eller idéer?
+## Har du frågor eller idéer?
 
-Öppna ett [Issue på GitHub](https://github.com/emilgustavsson/BorsTerminal/issues) för att diskutera nya funktioner eller rapportera buggar!
+Öppna ett [Issue på GitHub](https://github.com/sibb74/BorsTerminal/issues) för att diskutera nya funktioner eller rapportera buggar.
