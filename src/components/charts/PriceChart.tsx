@@ -46,7 +46,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({ candles, ticker }) => {
         timeVisible: true,
         secondsVisible: false,
       },
-      handleScroll: { mouseWheel: true, pressedMove: true },
+      handleScroll: { mouseWheel: true, pressedMouseMove: true },
       handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
     });
 

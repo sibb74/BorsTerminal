@@ -5,7 +5,7 @@ interface FreemiumModalProps {
   isOpen: boolean;
   onClose: () => void;
   ticker?: string;
-  onSaveApiKey?: (key: str) => void;
+  onSaveApiKey?: (key: string) => void;
 }
 
 export const FreemiumModal: React.FC<FreemiumModalProps> = ({
