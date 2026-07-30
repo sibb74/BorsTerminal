@@ -1,0 +1,24 @@
+# Node & Frontend
+node_modules/
+dist/
+.env
+.env.local
+*.log
+
+# Python & Sidecar
+__pycache__/
+*.pyc
+.venv/
+venv/
+src-sidecar/data/
+*.db
+*.sqlite
+build/
+dist-sidecar/
+
+# Tauri & Rust
+src-tauri/target/
+
+# OS Specific
+.DS_Store
+Thumbs.db
