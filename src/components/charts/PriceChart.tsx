@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { createChart, ColorType, CrosshairMode, IChartApi } from "lightweight-charts";
+import { createChart, ColorType, CrosshairMode, IChartApi, LineStyle } from "lightweight-charts";
 import { PriceCandle } from "@/lib/api";
 
 interface PriceChartProps {
@@ -20,29 +20,29 @@ export const PriceChart: React.FC<PriceChartProps> = ({ candles, ticker }) => {
       chartRef.current = null;
     }
 
-    // Initialize TradingView Lightweight Chart
+    // Initialize TradingView Lightweight Chart in monochrome terminal theme
     const chart = createChart(chartContainerRef.current, {
       layout: {
-        background: { type: ColorType.Solid, color: "#070a12" },
-        textColor: "#94a3b8",
-        fontFamily: "'JetBrains Mono', monospace",
+        background: { type: ColorType.Solid, color: "#000000" },
+        textColor: "#a3a3a3",
+        fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
         fontSize: 11,
       },
       grid: {
-        vertLines: { color: "#111827" },
-        horzLines: { color: "#111827" },
+        vertLines: { color: "#171717" },
+        horzLines: { color: "#171717" },
       },
       crosshair: {
         mode: CrosshairMode.Normal,
-        vertLine: { color: "#334155", width: 1, style: 3 },
-        horzLine: { color: "#334155", width: 1, style: 3 },
+        vertLine: { color: "#404040", width: 1, style: LineStyle.Dashed },
+        horzLine: { color: "#404040", width: 1, style: LineStyle.Dashed },
       },
       rightPriceScale: {
-        borderColor: "#1e293b",
+        borderColor: "#262626",
         scaleMargins: { top: 0.1, bottom: 0.25 },
       },
       timeScale: {
-        borderColor: "#1e293b",
+        borderColor: "#262626",
         timeVisible: true,
         secondsVisible: false,
       },
@@ -52,12 +52,12 @@ export const PriceChart: React.FC<PriceChartProps> = ({ candles, ticker }) => {
 
     chartRef.current = chart;
 
-    // 1. Candlestick Series
+    // 1. Candlestick Series (Colors used STRICTLY for Price Signal)
     const candlestickSeries = chart.addCandlestickSeries({
-      upColor: "#10b981",
+      upColor: "#22c55e",
       downColor: "#ef4444",
       borderVisible: false,
-      wickUpColor: "#10b981",
+      wickUpColor: "#22c55e",
       wickDownColor: "#ef4444",
     });
 
@@ -71,7 +71,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({ candles, ticker }) => {
       }))
     );
 
-    // 2. Volume Histogram Series
+    // 2. Volume Histogram Series (Colors used STRICTLY for Volume Signal)
     const volumeSeries = chart.addHistogramSeries({
       priceFormat: { type: "volume" },
       priceScaleId: "",
@@ -85,14 +85,14 @@ export const PriceChart: React.FC<PriceChartProps> = ({ candles, ticker }) => {
       candles.map((c) => ({
         time: c.date,
         value: c.volume,
-        color: c.close >= c.open ? "#10b98133" : "#ef444433",
+        color: c.close >= c.open ? "#22c55e33" : "#ef444433",
       }))
     );
 
-    // 3. Technical Moving Averages (SMA50 & SMA200)
+    // 3. Technical Moving Averages (High-Contrast Neutral Monochrome Lines)
     const sma50Series = chart.addLineSeries({
-      color: "#f59e0b", // Amber
-      lineWidth: 2,
+      color: "#e5e5e5", // Bright Neutral White
+      lineWidth: 1,
       title: "SMA 50",
     });
     sma50Series.setData(
@@ -102,8 +102,9 @@ export const PriceChart: React.FC<PriceChartProps> = ({ candles, ticker }) => {
     );
 
     const sma200Series = chart.addLineSeries({
-      color: "#06b6d4", // Cyan
-      lineWidth: 2,
+      color: "#737373", // Dim Neutral Gray
+      lineStyle: LineStyle.Dashed,
+      lineWidth: 1,
       title: "SMA 200",
     });
     sma200Series.setData(
@@ -137,17 +138,17 @@ export const PriceChart: React.FC<PriceChartProps> = ({ candles, ticker }) => {
   }, [candles, ticker]);
 
   return (
-    <div className="relative w-full h-full flex flex-col bg-[#070a12] border border-slate-800/80 rounded-lg overflow-hidden">
+    <div className="relative w-full h-full flex flex-col bg-[#000000] border border-[#262626] rounded-none overflow-hidden select-none font-mono">
       {/* Legend / Overlay Header */}
-      <div className="absolute top-3 left-3 z-10 flex items-center space-x-4 bg-[#0d1322]/80 backdrop-blur border border-slate-800 px-3 py-1.5 rounded text-xs font-mono select-none">
-        <span className="font-bold text-white tracking-wider">{ticker}</span>
+      <div className="absolute top-2.5 left-2.5 z-10 flex items-center space-x-4 bg-[#000000] border border-[#262626] px-3 py-1 text-xs select-none">
+        <span className="font-bold text-white tracking-widest">{ticker}</span>
         <div className="flex items-center space-x-1.5">
-          <span className="w-2.5 h-0.5 bg-[#f59e0b] rounded" />
-          <span className="text-amber-400 text-[11px]">SMA 50</span>
+          <span className="w-2.5 h-0.5 bg-[#e5e5e5]" />
+          <span className="text-neutral-200 text-[10px]">SMA 50</span>
         </div>
         <div className="flex items-center space-x-1.5">
-          <span className="w-2.5 h-0.5 bg-[#06b6d4] rounded" />
-          <span className="text-cyan-400 text-[11px]">SMA 200</span>
+          <span className="w-2.5 h-0.5 bg-[#737373]" />
+          <span className="text-neutral-400 text-[10px]">SMA 200</span>
         </div>
       </div>
 

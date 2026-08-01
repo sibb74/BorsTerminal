@@ -42,6 +42,28 @@ class BorsApiClient:
                 logger.error(f"Failed to fetch companies from BörsAPI: {e}")
                 raise e
 
+    async def validate_api_key(self) -> bool:
+        """
+        Validates the configured API key by making a cheap request to BörsAPI.
+        Returns True if the key is accepted, False otherwise.
+        """
+        if not self.api_key:
+            return False
+
+        url = f"{self.base_url}/companies"
+        params = {"limit": 1}
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            try:
+                response = await client.get(url, headers=self.headers, params=params)
+                if response.status_code in (401, 403):
+                    logger.warning("BörsAPI key rejected (401/403)")
+                    return False
+                response.raise_for_status()
+                return True
+            except httpx.HTTPError as e:
+                logger.error(f"BörsAPI key validation failed: {e}")
+                return False
+
     async def get_financial_reports(self, company_id_or_ticker: str) -> List[Dict[str, Any]]:
         """Fetch financial reports (income statement, balance sheet, cash flow) for a company."""
         if not self.api_key:

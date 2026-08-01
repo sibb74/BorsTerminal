@@ -51,6 +51,14 @@ CREATE TABLE IF NOT EXISTS price_series (
 );
 """
 
+CREATE_SETTINGS_TABLE = """
+CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+"""
+
 def init_db():
     """Initializes SQLite database tables."""
     conn = get_db_connection()
@@ -58,4 +66,5 @@ def init_db():
         conn.execute(CREATE_COMPANIES_TABLE)
         conn.execute(CREATE_FINANCIAL_REPORTS_TABLE)
         conn.execute(CREATE_PRICE_SERIES_TABLE)
+        conn.execute(CREATE_SETTINGS_TABLE)
     conn.close()

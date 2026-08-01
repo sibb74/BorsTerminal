@@ -122,3 +122,34 @@ export async function fetchValuationMultiples(ticker: string): Promise<Valuation
   if (!res.ok) throw new ApiError(`Kunde inte hämta nyckeltal för ${ticker}`);
   return res.json();
 }
+
+export interface ApiKeyStatus {
+  has_key: boolean;
+}
+
+export async function fetchApiKeyStatus(): Promise<ApiKeyStatus> {
+  const res = await fetch(`${API_BASE_URL}/settings/api-key`);
+  if (!res.ok) throw new ApiError("Kunde inte hämta API-nyckelstatus");
+  return res.json();
+}
+
+export async function saveApiKey(apiKey: string): Promise<ApiKeyStatus> {
+  const res = await fetch(`${API_BASE_URL}/settings/api-key`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ api_key: apiKey }),
+  });
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new ApiError(errData.detail || "Ogiltig BörsAPI-nyckel.");
+  }
+  return res.json();
+}
+
+export async function deleteApiKey(): Promise<ApiKeyStatus> {
+  const res = await fetch(`${API_BASE_URL}/settings/api-key`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new ApiError("Kunde inte ta bort API-nyckeln.");
+  return res.json();
+}

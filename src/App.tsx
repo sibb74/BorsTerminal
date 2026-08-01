@@ -3,18 +3,18 @@ import {
   Activity,
   Database,
   ExternalLink,
-  ShieldCheck,
   RefreshCw,
-  TrendingUp,
   BarChart2,
   Table as TableIcon,
-  AlertCircle,
 } from "lucide-react";
 import {
   fetchCompanies,
   fetchFinancials,
   fetchPriceSeries,
   fetchValuationMultiples,
+  fetchApiKeyStatus,
+  saveApiKey,
+  deleteApiKey,
   Company,
   FinancialReport,
   PriceCandle,
@@ -43,6 +43,7 @@ export default function App() {
   // Freemium Modal State
   const [isFreemiumModalOpen, setIsFreemiumModalOpen] = useState(false);
   const [restrictedTicker, setRestrictedTicker] = useState<string | undefined>();
+  const [hasApiKey, setHasApiKey] = useState(false);
 
   // 1. Initial Sidecar Health Check & Companies List Fetch
   useEffect(() => {
@@ -55,6 +56,13 @@ export default function App() {
       } catch (err) {
         setSidecarStatus("offline");
       }
+
+      try {
+        const status = await fetchApiKeyStatus();
+        setHasApiKey(status.has_key);
+      } catch (err) {
+        console.error("Failed to load API key status:", err);
+      }
     };
     init();
   }, []);
@@ -63,7 +71,6 @@ export default function App() {
   const loadStockData = async (ticker: string) => {
     setLoading(true);
     try {
-      // Parallel data fetching for sub-50ms render speed
       const [finRes, priceRes, indRes] = await Promise.all([
         fetchFinancials(ticker),
         fetchPriceSeries(ticker).catch(() => ({ candles: [] })),
@@ -90,7 +97,31 @@ export default function App() {
     loadStockData(selectedTicker);
   }, [selectedTicker]);
 
-  // Format currency helpers
+  const handleSaveApiKey = async (key: string) => {
+    try {
+      await saveApiKey(key);
+      setHasApiKey(true);
+      const compList = await fetchCompanies();
+      setCompanies(compList);
+      loadStockData(selectedTicker);
+      return true;
+    } catch (err) {
+      console.error("Failed to save BörsAPI key:", err);
+      throw err;
+    }
+  };
+
+  const handleDeleteApiKey = async () => {
+    try {
+      await deleteApiKey();
+      setHasApiKey(false);
+      const compList = await fetchCompanies();
+      setCompanies(compList);
+    } catch (err) {
+      console.error("Failed to delete BörsAPI key:", err);
+    }
+  };
+
   const fmtCurrency = (val: number | null | undefined) => {
     if (val === null || val === undefined) return "-";
     return Math.round(val).toLocaleString("sv-SE") + " MSEK";
@@ -103,45 +134,53 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#070a12] text-slate-100 font-sans select-none overflow-hidden">
-      {/* Top Bar / Header */}
-      <header className="flex items-center justify-between px-4 py-2.5 bg-[#0d1322] border-b border-slate-800 text-xs">
+    <div className="flex flex-col h-screen bg-[#000000] text-neutral-100 font-mono select-none overflow-hidden">
+      {/* Top Bar / Terminal Header */}
+      <header className="flex items-center justify-between px-3 py-2 bg-[#050505] border-b border-[#262626] text-xs font-mono">
         <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-2 font-mono font-bold text-sm tracking-wider text-emerald-400">
-            <Activity className="w-4 h-4 text-emerald-400 animate-pulse" />
+          <div className="flex items-center space-x-2 font-bold text-sm tracking-widest text-white">
+            <Activity className="w-4 h-4 text-neutral-300" />
             <span>BÖRS TERMINAL</span>
           </div>
-          <span className="px-1.5 py-0.5 text-[10px] font-mono bg-slate-800 text-slate-400 rounded">
+          <span className="px-1.5 py-0.5 text-[10px] bg-[#171717] text-neutral-400 border border-[#262626]">
             v1.0.0-dev
           </span>
         </div>
 
         {/* Demo Mode / BörsAPI Status */}
         <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-2 bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-1 rounded text-emerald-300">
-            <Database className="w-3.5 h-3.5" />
-            <span className="font-mono">Demo Mode (Lokal SQLite Seed)</span>
-            <a
-              href="https://borsapi.se/register?ref=borsterminal"
-              target="_blank"
-              rel="noreferrer"
-              className="ml-2 flex items-center space-x-1 text-xs bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-2.5 py-0.5 rounded transition-colors"
-            >
-              <span>Lås upp Live BörsAPI</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
+          <div className="flex items-center space-x-2 bg-[#0a0a0a] border border-[#262626] px-2.5 py-1 text-neutral-300">
+            <Database className="w-3.5 h-3.5 text-neutral-400" />
+            <span className="text-xs">
+              {hasApiKey ? "LIVE BÖRSAPI (NYCKEL ANSLUTEN)" : "DEMO MODE (LOKAL SQLITE SEED)"}
+            </span>
+            {hasApiKey ? (
+              <button
+                onClick={handleDeleteApiKey}
+                className="ml-2 text-xs bg-[#171717] hover:bg-[#262626] text-neutral-300 px-2 py-0.5 border border-[#333333] transition-none"
+                title="Ta bort BörsAPI-nyckel"
+              >
+                [ TA BORT NYCKEL ]
+              </button>
+            ) : (
+              <button
+                onClick={() => setIsFreemiumModalOpen(true)}
+                className="ml-2 flex items-center space-x-1 text-xs bg-[#171717] hover:bg-[#262626] text-white font-bold px-2 py-0.5 border border-[#404040] transition-none"
+              >
+                <span>[ ANSLUT BÖRSAPI ]</span>
+                <ExternalLink className="w-3 h-3" />
+              </button>
+            )}
           </div>
 
-          <div className="flex items-center space-x-1.5 px-2 py-1 bg-slate-900 border border-slate-800 rounded font-mono">
+          <div className="flex items-center space-x-1.5 px-2 py-1 bg-[#0a0a0a] border border-[#262626]">
             <span
-              className={`w-2 h-2 rounded-full ${
-                sidecarStatus === "online"
-                  ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"
-                  : "bg-red-500"
+              className={`w-2 h-2 ${
+                sidecarStatus === "online" ? "bg-green-500" : "bg-red-500"
               }`}
             />
-            <span className="text-slate-400 text-[11px]">
-              Sidecar: {sidecarStatus === "online" ? `v${sidecarVersion}` : sidecarStatus}
+            <span className="text-neutral-400 text-[11px] uppercase">
+              SIDECAR: {sidecarStatus === "online" ? `v${sidecarVersion}` : sidecarStatus}
             </span>
           </div>
         </div>
@@ -160,105 +199,105 @@ export default function App() {
         />
 
         {/* Center Stock Workspace */}
-        <section className="flex-1 flex flex-col bg-[#050810] p-4 overflow-y-auto">
+        <section className="flex-1 flex flex-col bg-[#000000] p-3 overflow-y-auto font-mono">
           {/* Stock Header Banner */}
-          <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+          <div className="flex items-center justify-between mb-3 border-b border-[#262626] pb-2.5">
             <div>
               <div className="flex items-center space-x-3">
-                <h1 className="text-2xl font-bold font-mono tracking-wide text-white">
+                <h1 className="text-xl font-bold tracking-widest text-white">
                   {selectedCompany.ticker}
                 </h1>
-                <span className="text-sm text-slate-300 font-semibold">{selectedCompany.name}</span>
-                <span className="text-xs px-2 py-0.5 bg-slate-800 text-slate-400 font-mono rounded">
+                <span className="text-xs text-neutral-300 font-semibold">{selectedCompany.name}</span>
+                <span className="text-[10px] px-2 py-0.5 bg-[#171717] text-neutral-400 border border-[#262626] uppercase">
                   {selectedCompany.sector}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-1 font-mono">
-                Pandas TTM Evaluated &bull; Svenska Börsen (Nasdaq Stockholm)
+              <p className="text-[11px] text-neutral-500 mt-0.5">
+                NASDAQ STOCKHOLM &bull; PANDAS TTM EVALUATED
               </p>
             </div>
 
             {/* View Switching & Actions */}
-            <div className="flex items-center space-x-3">
-              <div className="flex bg-[#0b101e] border border-slate-800 p-0.5 rounded text-xs font-mono">
+            <div className="flex items-center space-x-2">
+              <div className="flex bg-[#0a0a0a] border border-[#262626] p-0.5 text-xs">
                 <button
                   onClick={() => setActiveView("CHART")}
-                  className={`flex items-center space-x-1.5 px-3 py-1 rounded transition-colors ${
+                  className={`flex items-center space-x-1.5 px-3 py-1 transition-none border ${
                     activeView === "CHART"
-                      ? "bg-slate-800 text-white font-bold"
-                      : "text-slate-400 hover:text-slate-200"
+                      ? "bg-[#171717] text-white font-bold border-[#404040]"
+                      : "text-neutral-400 hover:text-white border-transparent"
                   }`}
                 >
-                  <BarChart2 className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Graf & Tekniskt</span>
+                  <BarChart2 className="w-3.5 h-3.5 text-neutral-300" />
+                  <span>[ GRAF & TEKNISKT ]</span>
                 </button>
                 <button
                   onClick={() => setActiveView("TABLE")}
-                  className={`flex items-center space-x-1.5 px-3 py-1 rounded transition-colors ${
+                  className={`flex items-center space-x-1.5 px-3 py-1 transition-none border ${
                     activeView === "TABLE"
-                      ? "bg-slate-800 text-white font-bold"
-                      : "text-slate-400 hover:text-slate-200"
+                      ? "bg-[#171717] text-white font-bold border-[#404040]"
+                      : "text-neutral-400 hover:text-white border-transparent"
                   }`}
                 >
-                  <TableIcon className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Finansiella Rapporter</span>
+                  <TableIcon className="w-3.5 h-3.5 text-neutral-300" />
+                  <span>[ FINANSIELLA RAPPORTER ]</span>
                 </button>
               </div>
 
               <button
                 onClick={() => loadStockData(selectedTicker)}
-                className="flex items-center space-x-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded border border-slate-700 transition-colors font-mono"
+                className="flex items-center space-x-1 text-xs bg-[#0a0a0a] hover:bg-[#171717] text-neutral-300 px-3 py-1.5 border border-[#262626] transition-none"
               >
-                <RefreshCw className={`w-3.5 h-3.5 text-slate-400 ${loading ? "animate-spin" : ""}`} />
-                <span>Uppdatera</span>
+                <RefreshCw className={`w-3.5 h-3.5 text-neutral-400 ${loading ? "animate-spin" : ""}`} />
+                <span>UPPDATERA</span>
               </button>
             </div>
           </div>
 
           {/* Key Indicators Metric Grid */}
-          <div className="grid grid-cols-5 gap-3 mb-4 font-mono">
-            <div className="bg-[#0b101d] border border-slate-800/80 rounded p-3">
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider">Senaste Pris</div>
-              <div className="text-lg font-bold text-white mt-0.5">
+          <div className="grid grid-cols-5 gap-2.5 mb-3">
+            <div className="bg-[#0a0a0a] border border-[#262626] p-2.5">
+              <div className="text-[10px] text-neutral-400 uppercase tracking-widest">SENASTE PRIS</div>
+              <div className="text-base font-bold text-white mt-0.5">
                 {multiples?.latest_price ? `${multiples.latest_price} SEK` : "-"}
               </div>
-              <div className="text-[10px] text-slate-500 mt-0.5">
-                {multiples?.price_date || "Stängningskurs"}
+              <div className="text-[10px] text-neutral-500 mt-0.5">
+                {multiples?.price_date || "STÄNGNINGSKURS"}
               </div>
             </div>
 
-            <div className="bg-[#0b101d] border border-slate-800/80 rounded p-3">
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider">P/E-Tal (TTM)</div>
-              <div className="text-lg font-bold text-amber-400 mt-0.5">
+            <div className="bg-[#0a0a0a] border border-[#262626] p-2.5">
+              <div className="text-[10px] text-neutral-400 uppercase tracking-widest">P/E-TAL (TTM)</div>
+              <div className="text-base font-bold text-neutral-100 mt-0.5">
                 {multiples?.pe_ttm ? `${multiples.pe_ttm}x` : "-"}
               </div>
-              <div className="text-[10px] text-emerald-400 mt-0.5">
-                {ttm?.eps_ttm ? `EPS TTM: ${ttm.eps_ttm} kr` : "-"}
+              <div className="text-[10px] text-neutral-400 mt-0.5">
+                {ttm?.eps_ttm ? `EPS: ${ttm.eps_ttm} kr` : "-"}
               </div>
             </div>
 
-            <div className="bg-[#0b101d] border border-slate-800/80 rounded p-3">
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider">Rörelsemarginal</div>
-              <div className="text-lg font-bold text-emerald-400 mt-0.5">
+            <div className="bg-[#0a0a0a] border border-[#262626] p-2.5">
+              <div className="text-[10px] text-neutral-400 uppercase tracking-widest">RÖRELSEMARGINAL</div>
+              <div className={`text-base font-bold mt-0.5 ${(ttm?.operating_margin_pct ?? 0) >= 0 ? "text-green-500" : "text-red-500"}`}>
                 {ttm?.operating_margin_pct ? `${ttm.operating_margin_pct}%` : "-"}
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">EBIT / Omsättning</div>
+              <div className="text-[10px] text-neutral-500 mt-0.5">EBIT / OMSÄTTNING</div>
             </div>
 
-            <div className="bg-[#0b101d] border border-slate-800/80 rounded p-3">
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider">Omsättning (TTM)</div>
-              <div className="text-lg font-bold text-white mt-0.5">
+            <div className="bg-[#0a0a0a] border border-[#262626] p-2.5">
+              <div className="text-[10px] text-neutral-400 uppercase tracking-widest">OMSÄTTNING (TTM)</div>
+              <div className="text-base font-bold text-white mt-0.5">
                 {fmtCurrency(ttm?.revenue_ttm)}
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">{ttm?.ttm_source || "Rullande 12m"}</div>
+              <div className="text-[10px] text-neutral-500 mt-0.5">{ttm?.ttm_source || "RULLANDE 12M"}</div>
             </div>
 
-            <div className="bg-[#0b101d] border border-slate-800/80 rounded p-3">
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider">Fritt Kassaflöde</div>
-              <div className="text-lg font-bold text-emerald-400 mt-0.5">
+            <div className="bg-[#0a0a0a] border border-[#262626] p-2.5">
+              <div className="text-[10px] text-neutral-400 uppercase tracking-widest">FRITT KASSAFLÖDE</div>
+              <div className={`text-base font-bold mt-0.5 ${(ttm?.free_cash_flow_ttm ?? 0) >= 0 ? "text-green-500" : "text-red-500"}`}>
                 {fmtCurrency(ttm?.free_cash_flow_ttm)}
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">FCF TTM</div>
+              <div className="text-[10px] text-neutral-500 mt-0.5">FCF TTM</div>
             </div>
           </div>
 
@@ -278,6 +317,9 @@ export default function App() {
         isOpen={isFreemiumModalOpen}
         onClose={() => setIsFreemiumModalOpen(false)}
         ticker={restrictedTicker}
+        hasApiKey={hasApiKey}
+        onSaveApiKey={handleSaveApiKey}
+        onDeleteApiKey={handleDeleteApiKey}
       />
     </div>
   );

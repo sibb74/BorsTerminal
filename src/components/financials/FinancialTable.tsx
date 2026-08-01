@@ -10,13 +10,13 @@ export const FinancialTable: React.FC<FinancialTableProps> = ({ reports }) => {
 
   if (!reports || reports.length === 0) {
     return (
-      <div className="p-8 text-center text-slate-500 text-xs font-mono">
-        Inga finansiella rapporter tillgängliga för valt bolag.
+      <div className="p-8 text-center text-neutral-500 text-xs font-mono border border-[#262626] bg-[#000000]">
+        INGA FINANSIELLA RAPPORTER TILLGÄNGLIGA FÖR VALT BOLAG.
       </div>
     );
   }
 
-  // Format currency numbers cleanly (e.g., 148 100 MSEK)
+  // Format currency numbers cleanly
   const fmt = (val: number | null) => {
     if (val === null || val === undefined) return "-";
     const rounded = Math.round(val);
@@ -29,100 +29,100 @@ export const FinancialTable: React.FC<FinancialTableProps> = ({ reports }) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#080d1a] border border-slate-800/80 rounded-lg overflow-hidden select-none">
+    <div className="flex flex-col h-full bg-[#000000] border border-[#262626] rounded-none overflow-hidden select-none font-mono">
       {/* Table Sub-Navigation Tabs */}
-      <div className="flex items-center justify-between px-4 py-2 bg-[#0d1425] border-b border-slate-800 text-xs font-mono">
+      <div className="flex items-center justify-between px-3 py-1.5 bg-[#0a0a0a] border-b border-[#262626] text-xs font-mono">
         <div className="flex space-x-1">
           <button
             onClick={() => setActiveTab("RR")}
-            className={`px-3 py-1 rounded transition-colors ${
+            className={`px-3 py-1 rounded-none text-xs transition-none border ${
               activeTab === "RR"
-                ? "bg-slate-800 text-white font-bold border border-slate-700"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
+                ? "bg-[#171717] text-white font-bold border-[#404040]"
+                : "bg-transparent text-neutral-400 border-transparent hover:text-neutral-200 hover:bg-[#121212]"
             }`}
           >
-            Resultaträkning (RR)
+            [ RESULTATRÄKNING (RR) ]
           </button>
           <button
             onClick={() => setActiveTab("BR")}
-            className={`px-3 py-1 rounded transition-colors ${
+            className={`px-3 py-1 rounded-none text-xs transition-none border ${
               activeTab === "BR"
-                ? "bg-slate-800 text-white font-bold border border-slate-700"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
+                ? "bg-[#171717] text-white font-bold border-[#404040]"
+                : "bg-transparent text-neutral-400 border-transparent hover:text-neutral-200 hover:bg-[#121212]"
             }`}
           >
-            Balansräkning (BR)
+            [ BALANSRÄKNING (BR) ]
           </button>
           <button
             onClick={() => setActiveTab("KA")}
-            className={`px-3 py-1 rounded transition-colors ${
+            className={`px-3 py-1 rounded-none text-xs transition-none border ${
               activeTab === "KA"
-                ? "bg-slate-800 text-white font-bold border border-slate-700"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
+                ? "bg-[#171717] text-white font-bold border-[#404040]"
+                : "bg-transparent text-neutral-400 border-transparent hover:text-neutral-200 hover:bg-[#121212]"
             }`}
           >
-            Kassaflöde (KA)
+            [ KASSAFLÖDE (KA) ]
           </button>
         </div>
 
-        <span className="text-[11px] text-slate-500 font-mono">Belopp i MSEK</span>
+        <span className="text-[10px] text-neutral-500 uppercase tracking-widest">BELOPP I MSEK</span>
       </div>
 
       {/* Financial Data Table */}
       <div className="flex-1 overflow-x-auto overflow-y-auto">
         <table className="w-full text-left text-xs font-mono border-collapse">
           <thead>
-            <tr className="bg-[#0b101e] border-b border-slate-800 text-slate-400 text-[11px] uppercase tracking-wider">
-              <th className="p-3 sticky left-0 bg-[#0b101e] min-w-[200px]">Rapportpost</th>
+            <tr className="bg-[#0a0a0a] border-b border-[#262626] text-neutral-400 text-[10px] uppercase tracking-wider">
+              <th className="p-2.5 sticky left-0 bg-[#0a0a0a] min-w-[200px] border-r border-[#262626]">RAPPORTPOST</th>
               {reports.map((r) => (
-                <th key={r.id} className="p-3 text-right min-w-[110px]">
-                  <div className="font-bold text-slate-200">{r.period}</div>
-                  <div className="text-[9px] text-slate-500 font-normal">{r.period_type}</div>
+                <th key={r.id} className="p-2.5 text-right min-w-[110px] border-r border-[#262626] last:border-r-0">
+                  <div className="font-bold text-neutral-200">{r.period}</div>
+                  <div className="text-[9px] text-neutral-500 font-normal">{r.period_type}</div>
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/50 text-slate-300">
+          <tbody className="divide-y divide-[#171717] text-neutral-300">
             {activeTab === "RR" && (
               <>
-                <tr className="hover:bg-slate-900/50">
-                  <td className="p-3 font-semibold text-slate-200 sticky left-0 bg-[#080d1a]">Nettoomsättning</td>
+                <tr className="hover:bg-[#0d0d0d]">
+                  <td className="p-2.5 font-semibold text-neutral-100 sticky left-0 bg-[#000000] border-r border-[#262626]">NETTOOMSÄTTNING</td>
                   {reports.map((r) => (
-                    <td key={r.id} className="p-3 text-right font-semibold text-slate-100">{fmt(r.revenue)}</td>
+                    <td key={r.id} className="p-2.5 text-right font-semibold text-neutral-100 border-r border-[#171717] last:border-r-0">{fmt(r.revenue)}</td>
                   ))}
                 </tr>
-                <tr className="hover:bg-slate-900/50">
-                  <td className="p-3 text-slate-400 sticky left-0 bg-[#080d1a]">Bruttoresultat</td>
+                <tr className="hover:bg-[#0d0d0d]">
+                  <td className="p-2.5 text-neutral-400 sticky left-0 bg-[#000000] border-r border-[#262626]">BRUTTORESULTAT</td>
                   {reports.map((r) => (
-                    <td key={r.id} className="p-3 text-right">{fmt(r.gross_profit)}</td>
+                    <td key={r.id} className="p-2.5 text-right border-r border-[#171717] last:border-r-0">{fmt(r.gross_profit)}</td>
                   ))}
                 </tr>
-                <tr className="hover:bg-slate-900/50 bg-slate-900/20">
-                  <td className="p-3 font-semibold text-emerald-400 sticky left-0 bg-[#080d1a]">Rörelseresultat (EBIT)</td>
+                <tr className="hover:bg-[#0d0d0d] bg-[#0a0a0a]">
+                  <td className="p-2.5 font-bold text-neutral-100 sticky left-0 bg-[#0a0a0a] border-r border-[#262626]">RÖRELSERESULTAT (EBIT)</td>
                   {reports.map((r) => (
-                    <td key={r.id} className={`p-3 text-right font-bold ${(r.operating_income ?? 0) >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                    <td key={r.id} className={`p-2.5 text-right font-bold border-r border-[#171717] last:border-r-0 ${(r.operating_income ?? 0) >= 0 ? "text-green-500" : "text-red-500"}`}>
                       {fmt(r.operating_income)}
                     </td>
                   ))}
                 </tr>
-                <tr className="hover:bg-slate-900/50">
-                  <td className="p-3 text-slate-400 sticky left-0 bg-[#080d1a]">Resultat före skatt</td>
+                <tr className="hover:bg-[#0d0d0d]">
+                  <td className="p-2.5 text-neutral-400 sticky left-0 bg-[#000000] border-r border-[#262626]">RESULTAT FÖRE SKATT</td>
                   {reports.map((r) => (
-                    <td key={r.id} className="p-3 text-right">{fmt(r.pre_tax_income)}</td>
+                    <td key={r.id} className="p-2.5 text-right border-r border-[#171717] last:border-r-0">{fmt(r.pre_tax_income)}</td>
                   ))}
                 </tr>
-                <tr className="hover:bg-slate-900/50 bg-slate-900/40">
-                  <td className="p-3 font-bold text-white sticky left-0 bg-[#080d1a]">Årets nettoresultat</td>
+                <tr className="hover:bg-[#0d0d0d] bg-[#0a0a0a]">
+                  <td className="p-2.5 font-bold text-neutral-100 sticky left-0 bg-[#0a0a0a] border-r border-[#262626]">ÅRETS NETTORESULTAT</td>
                   {reports.map((r) => (
-                    <td key={r.id} className={`p-3 text-right font-bold ${(r.net_income ?? 0) >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                    <td key={r.id} className={`p-2.5 text-right font-bold border-r border-[#171717] last:border-r-0 ${(r.net_income ?? 0) >= 0 ? "text-green-500" : "text-red-500"}`}>
                       {fmt(r.net_income)}
                     </td>
                   ))}
                 </tr>
-                <tr className="hover:bg-slate-900/50">
-                  <td className="p-3 text-slate-400 sticky left-0 bg-[#080d1a]">Vinst per aktie (EPS)</td>
+                <tr className="hover:bg-[#0d0d0d]">
+                  <td className="p-2.5 text-neutral-400 sticky left-0 bg-[#000000] border-r border-[#262626]">VINST PER AKTIE (EPS)</td>
                   {reports.map((r) => (
-                    <td key={r.id} className="p-3 text-right text-amber-300 font-semibold">{fmtEps(r.eps)}</td>
+                    <td key={r.id} className="p-2.5 text-right text-neutral-200 font-mono border-r border-[#171717] last:border-r-0">{fmtEps(r.eps)}</td>
                   ))}
                 </tr>
               </>
@@ -130,22 +130,22 @@ export const FinancialTable: React.FC<FinancialTableProps> = ({ reports }) => {
 
             {activeTab === "BR" && (
               <>
-                <tr className="hover:bg-slate-900/50">
-                  <td className="p-3 font-semibold text-slate-200 sticky left-0 bg-[#080d1a]">Totala Tillgångar</td>
+                <tr className="hover:bg-[#0d0d0d]">
+                  <td className="p-2.5 font-semibold text-neutral-100 sticky left-0 bg-[#000000] border-r border-[#262626]">TOTALA TILLGÅNGAR</td>
                   {reports.map((r) => (
-                    <td key={r.id} className="p-3 text-right font-semibold text-slate-100">{fmt(r.total_assets)}</td>
+                    <td key={r.id} className="p-2.5 text-right font-semibold text-neutral-100 border-r border-[#171717] last:border-r-0">{fmt(r.total_assets)}</td>
                   ))}
                 </tr>
-                <tr className="hover:bg-slate-900/50">
-                  <td className="p-3 text-emerald-400 sticky left-0 bg-[#080d1a]">Eget Kapital</td>
+                <tr className="hover:bg-[#0d0d0d]">
+                  <td className="p-2.5 text-neutral-200 sticky left-0 bg-[#000000] border-r border-[#262626]">EGET KAPITAL</td>
                   {reports.map((r) => (
-                    <td key={r.id} className="p-3 text-right font-semibold text-emerald-400">{fmt(r.total_equity)}</td>
+                    <td key={r.id} className="p-2.5 text-right font-semibold text-neutral-200 border-r border-[#171717] last:border-r-0">{fmt(r.total_equity)}</td>
                   ))}
                 </tr>
-                <tr className="hover:bg-slate-900/50">
-                  <td className="p-3 text-slate-400 sticky left-0 bg-[#080d1a]">Nettoskuld</td>
+                <tr className="hover:bg-[#0d0d0d]">
+                  <td className="p-2.5 text-neutral-400 sticky left-0 bg-[#000000] border-r border-[#262626]">NETTOSKULD</td>
                   {reports.map((r) => (
-                    <td key={r.id} className="p-3 text-right">{fmt(r.net_debt)}</td>
+                    <td key={r.id} className="p-2.5 text-right border-r border-[#171717] last:border-r-0">{fmt(r.net_debt)}</td>
                   ))}
                 </tr>
               </>
@@ -153,22 +153,22 @@ export const FinancialTable: React.FC<FinancialTableProps> = ({ reports }) => {
 
             {activeTab === "KA" && (
               <>
-                <tr className="hover:bg-slate-900/50">
-                  <td className="p-3 font-semibold text-slate-200 sticky left-0 bg-[#080d1a]">Löpande kassaflöde</td>
+                <tr className="hover:bg-[#0d0d0d]">
+                  <td className="p-2.5 font-semibold text-neutral-100 sticky left-0 bg-[#000000] border-r border-[#262626]">LÖPANDE KASSAFLÖDE</td>
                   {reports.map((r) => (
-                    <td key={r.id} className="p-3 text-right font-semibold text-slate-100">{fmt(r.operating_cash_flow)}</td>
+                    <td key={r.id} className="p-2.5 text-right font-semibold text-neutral-100 border-r border-[#171717] last:border-r-0">{fmt(r.operating_cash_flow)}</td>
                   ))}
                 </tr>
-                <tr className="hover:bg-slate-900/50">
-                  <td className="p-3 text-slate-400 sticky left-0 bg-[#080d1a]">Investeringar (Capex)</td>
+                <tr className="hover:bg-[#0d0d0d]">
+                  <td className="p-2.5 text-neutral-400 sticky left-0 bg-[#000000] border-r border-[#262626]">INVESTERINGAR (CAPEX)</td>
                   {reports.map((r) => (
-                    <td key={r.id} className="p-3 text-right text-red-400">{fmt(r.capex)}</td>
+                    <td key={r.id} className="p-2.5 text-right text-neutral-300 border-r border-[#171717] last:border-r-0">{fmt(r.capex)}</td>
                   ))}
                 </tr>
-                <tr className="hover:bg-slate-900/50 bg-slate-900/40">
-                  <td className="p-3 font-bold text-emerald-400 sticky left-0 bg-[#080d1a]">Fritt Kassaflöde (FCF)</td>
+                <tr className="hover:bg-[#0d0d0d] bg-[#0a0a0a]">
+                  <td className="p-2.5 font-bold text-neutral-100 sticky left-0 bg-[#0a0a0a] border-r border-[#262626]">FRITT KASSAFLÖDE (FCF)</td>
                   {reports.map((r) => (
-                    <td key={r.id} className={`p-3 text-right font-bold ${(r.free_cash_flow ?? 0) >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                    <td key={r.id} className={`p-2.5 text-right font-bold border-r border-[#171717] last:border-r-0 ${(r.free_cash_flow ?? 0) >= 0 ? "text-green-500" : "text-red-500"}`}>
                       {fmt(r.free_cash_flow)}
                     </td>
                   ))}

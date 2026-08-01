@@ -15,9 +15,11 @@ src-sidecar/data/
 *.sqlite
 build/
 dist-sidecar/
+*.spec
 
 # Tauri & Rust
 src-tauri/target/
+src-tauri/binaries/
 
 # OS Specific
 .DS_Store

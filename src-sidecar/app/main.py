@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.config import settings
-from app.routers import health, companies, financials, price, indicators
+from app.config import settings as config
+from app.routers import health, companies, financials, price, indicators, settings as settings_router
 from app.database.seed_data import seed_database
 
 app = FastAPI(
-    title=settings.PROJECT_NAME,
-    version=settings.VERSION
+    title=config.PROJECT_NAME,
+    version=config.VERSION
 )
 
 # Enable CORS for Tauri frontend local requests
@@ -24,11 +24,12 @@ def startup_event():
     seed_database()
 
 # Include Routers
-app.include_router(health.router, prefix=settings.API_PREFIX)
-app.include_router(companies.router, prefix=settings.API_PREFIX)
-app.include_router(financials.router, prefix=settings.API_PREFIX)
-app.include_router(price.router, prefix=settings.API_PREFIX)
-app.include_router(indicators.router, prefix=settings.API_PREFIX)
+app.include_router(health.router, prefix=config.API_PREFIX)
+app.include_router(companies.router, prefix=config.API_PREFIX)
+app.include_router(financials.router, prefix=config.API_PREFIX)
+app.include_router(price.router, prefix=config.API_PREFIX)
+app.include_router(indicators.router, prefix=config.API_PREFIX)
+app.include_router(settings_router.router, prefix=config.API_PREFIX)
 
 if __name__ == "__main__":
     import uvicorn
