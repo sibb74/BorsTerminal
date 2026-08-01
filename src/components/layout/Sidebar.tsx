@@ -33,22 +33,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside className="w-64 bg-[#0a0a0a] border-r border-[#262626] flex flex-col h-full select-none font-mono">
       {/* Search Input Box */}
       <div className="p-2 border-b border-[#262626]">
-        <div className="relative">
+        <div className="relative flex items-center">
           <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-neutral-500" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="SÖK TICKER [ENTER]..."
-            className="w-full bg-[#000000] border border-[#262626] rounded-none pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:border-neutral-500 text-neutral-100 placeholder-neutral-600 font-mono uppercase tracking-wider"
+            placeholder="SÖK TICKER / NAMN [ENTER]..."
+            className="w-full bg-[#000000] border border-[#262626] rounded-none pl-8 pr-2 py-1.5 text-xs focus:outline-none focus:border-neutral-500 text-neutral-100 placeholder-neutral-600 font-mono uppercase tracking-wider"
           />
         </div>
       </div>
 
       <div className="p-2 border-b border-[#262626] text-[10px] font-mono text-neutral-400 uppercase tracking-widest px-3 flex items-center justify-between bg-[#050505]">
-        <span>STORBOLAG</span>
-        <span className="text-neutral-400 font-bold">5 SEEDED</span>
+        <span>BOLAGSLISTA</span>
+        <span className="text-neutral-300 font-bold">{companies.length} ANSLUTNA</span>
       </div>
 
       {/* Stock Watchlist Items */}
@@ -65,23 +65,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   : "bg-transparent hover:bg-[#121212] text-neutral-300 border-transparent"
               }`}
             >
-              <div className="space-y-0.5">
+              <div className="space-y-0.5 flex-1 min-w-0 pr-2">
                 <div className="flex items-center space-x-1.5">
-                  <span className="text-neutral-50 font-bold tracking-wider">
+                  <span className="text-neutral-50 font-bold tracking-wider truncate">
                     {stock.ticker}
                   </span>
-                  {stock.is_seed_data === 1 && (
-                    <span className="w-1.5 h-1.5 rounded-none bg-neutral-600" title="Offline Demo Data" />
-                  )}
                 </div>
-                <div className="text-[10px] text-neutral-400 truncate max-w-[130px]">
+                <div className="text-[10px] text-neutral-400 truncate">
                   {stock.name}
                 </div>
               </div>
 
-              <div className="flex items-center space-x-1.5 text-neutral-400">
+              <div className="flex items-center space-x-1 text-neutral-400 shrink-0">
                 <span className="text-[9px] bg-[#000000] px-1.5 py-0.5 rounded-none border border-[#262626] text-neutral-400 uppercase">
-                  {stock.sector}
+                  {stock.market || "XSTO"}
                 </span>
                 <ChevronRight className={`w-3.5 h-3.5 ${isSelected ? "text-white" : "opacity-0 group-hover:opacity-100 text-neutral-500"}`} />
               </div>
@@ -90,13 +87,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
 
         {filteredCompanies.length === 0 && (
-          <div className="p-4 text-center text-xs text-neutral-500 font-mono space-y-2">
-            <p>INGET BOLAG HITTADES MATCHANDE "{searchTerm.toUpperCase()}".</p>
+          <div className="p-4 text-center text-xs text-neutral-500 font-mono space-y-3">
+            <p className="uppercase break-all">INGET BOLAG HITTADES FÖR "{searchTerm}".</p>
             <button
               onClick={() => onSearchSubmit(searchTerm)}
-              className="text-neutral-300 underline hover:text-white text-[11px] font-bold tracking-wider"
+              className="px-3 py-1.5 bg-[#171717] hover:bg-[#262626] text-white border border-[#404040] text-xs font-bold uppercase tracking-wider transition-none"
             >
-              SÖK BÖRSAPI LIVE &rarr;
+              [ SÖK & HÄMTA "{searchTerm.toUpperCase()}" ]
             </button>
           </div>
         )}

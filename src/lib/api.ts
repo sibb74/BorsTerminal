@@ -143,15 +143,14 @@ export async function fetchPriceSeries(ticker: string): Promise<{
     const res = await fetch(targetUrl);
     if (!res.ok) {
       logger.warn("API", `[GET] ${targetUrl} -> HTTP ${res.status}`);
-      throw new ApiError(`Kunde inte hämta prisdata för ${ticker}`);
+      return { ticker, count: 0, candles: [] };
     }
     const data = await res.json();
     logger.info("API", `[GET] ${targetUrl} -> 200 OK (${data.candles?.length || 0} candles)`);
     return data;
   } catch (err: any) {
-    if (err instanceof ApiError) throw err;
-    logger.warn("API", `[GET] ${targetUrl} -> FETCH FAILED`);
-    throw err;
+    logger.warn("API", `[GET] ${targetUrl} -> Prisdata saknas eller kunde inte hämtas`);
+    return { ticker, count: 0, candles: [] };
   }
 }
 
@@ -159,11 +158,10 @@ export async function fetchValuationMultiples(ticker: string): Promise<Valuation
   const targetUrl = `${API_BASE_URL}/indicators/${ticker.toUpperCase()}`;
   try {
     const res = await fetch(targetUrl);
-    if (!res.ok) throw new ApiError(`Kunde inte hämta nyckeltal för ${ticker}`);
+    if (!res.ok) return { ticker, latest_price: null, price_date: null, pe_ttm: null, operating_margin_pct: null, net_margin_pct: null, revenue_ttm: null, net_income_ttm: null, eps_ttm: null, free_cash_flow_ttm: null, net_debt: null };
     return await res.json();
   } catch (err: any) {
-    if (err instanceof ApiError) throw err;
-    throw err;
+    return { ticker, latest_price: null, price_date: null, pe_ttm: null, operating_margin_pct: null, net_margin_pct: null, revenue_ttm: null, net_income_ttm: null, eps_ttm: null, free_cash_flow_ttm: null, net_debt: null };
   }
 }
 

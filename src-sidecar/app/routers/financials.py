@@ -80,64 +80,59 @@ def _persist_live_reports(company_ticker: str, reports: list) -> None:
 async def get_financial_reports(ticker: str):
     """Get financial reports and TTM metrics for a company."""
     clean_ticker = ticker.upper()
-    conn = get_db_connection()
+    api_key = get_api_key()
 
-    # Check if company exists in SQLite
+    conn = get_db_connection()
     company = conn.execute("SELECT * FROM companies WHERE ticker = ?", (clean_ticker,)).fetchone()
+    existing_reports = conn.execute("SELECT * FROM financial_reports WHERE company_ticker = ?", (clean_ticker,)).fetchall()
     conn.close()
 
-    if not company:
-        api_key = get_api_key()
-        if not api_key:
-            raise HTTPException(
-                status_code=404,
-                detail={
-                    "code": "DEMO_MODE_RESTRICTION",
-                    "message": f"Bolaget '{clean_ticker}' finns inte i den lokala frödatabasen. Mata in din BörsAPI-nyckel för att hämta live-data.",
-                    "ticker": clean_ticker,
-                },
-            )
-
-        # Attempt to fetch live reports via BörsAPI using the stored key
+    # If API key is set, try fetching live reports from BörsAPI to ensure complete report history
+    if api_key:
         client = BorsApiClient(api_key=api_key)
         try:
             raw_reports = await client.get_financial_reports(clean_ticker)
+            if raw_reports:
+                if not company:
+                    live_company = normalizer.normalize_company({}, ticker=clean_ticker)
+                    _persist_live_company(live_company)
+                _persist_live_reports(clean_ticker, raw_reports)
         except Exception as e:  # noqa: BLE001
             logger.error(f"BörsAPI live fetch failed for {clean_ticker}: {e}")
-            raw_reports = []
 
-        if not raw_reports:
-            raise HTTPException(
-                status_code=404,
-                detail={
-                    "code": "DEMO_MODE_RESTRICTION",
-                    "message": f"Kunde inte hämta live-data för '{clean_ticker}' från BörsAPI.",
-                    "ticker": clean_ticker,
-                },
-            )
-
-        # Persist company profile + normalized reports, then re-read from DB
-        live_company = normalizer.normalize_company({}, ticker=clean_ticker)
-        _persist_live_company(live_company)
-        _persist_live_reports(clean_ticker, raw_reports)
-
-        conn = get_db_connection()
-        company = conn.execute("SELECT * FROM companies WHERE ticker = ?", (clean_ticker,)).fetchone()
-        conn.close()
-
-    # Fetch raw reports
+    # Re-query DB after potential live sync
     conn = get_db_connection()
+    company = conn.execute("SELECT * FROM companies WHERE ticker = ?", (clean_ticker,)).fetchone()
     reports = conn.execute(
         "SELECT * FROM financial_reports WHERE company_ticker = ? ORDER BY period DESC",
         (clean_ticker,),
     ).fetchall()
     conn.close()
 
+    if not company and not reports:
+        if not api_key:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "DEMO_MODE_RESTRICTION",
+                    "message": f"Bolaget '{clean_ticker}' finns inte i den lokala databasen. Mata in din BörsAPI-nyckel för att hämta live-data.",
+                    "ticker": clean_ticker,
+                },
+            )
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "DEMO_MODE_RESTRICTION",
+                "message": f"Kunde inte hämta live-data för '{clean_ticker}' från BörsAPI.",
+                "ticker": clean_ticker,
+            },
+        )
+
     # Calculate Pandas TTM
     ttm_metrics = FinancialIndicatorEngine.calculate_ttm_metrics(clean_ticker)
 
     return {
-        "company": dict(company),
+        "company": dict(company) if company else {"ticker": clean_ticker, "name": clean_ticker, "sector": "Övrigt", "market": "XSTO"},
         "reports": [dict(r) for r in reports],
         "ttm": ttm_metrics,
     }

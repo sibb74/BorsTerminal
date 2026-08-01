@@ -220,8 +220,27 @@ export default function App() {
           companies={companies}
           selectedTicker={selectedTicker}
           onSelectTicker={(ticker) => setSelectedTicker(ticker)}
-          onSearchSubmit={(ticker) => {
-            setSelectedTicker(ticker.toUpperCase());
+          onSearchSubmit={async (searchTerm) => {
+            const clean = searchTerm.trim().toUpperCase();
+            if (!clean) return;
+            try {
+              const liveMatches = await fetchCompanies(clean);
+              if (liveMatches.length > 0) {
+                setCompanies((prev) => {
+                  const map = new Map<string, Company>();
+                  liveMatches.forEach((c) => map.set(c.ticker, c));
+                  prev.forEach((c) => {
+                    if (!map.has(c.ticker)) map.set(c.ticker, c);
+                  });
+                  return Array.from(map.values());
+                });
+                setSelectedTicker(liveMatches[0].ticker);
+              } else {
+                setSelectedTicker(clean);
+              }
+            } catch (err) {
+              setSelectedTicker(clean);
+            }
           }}
         />
 

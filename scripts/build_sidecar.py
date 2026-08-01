@@ -74,6 +74,8 @@ def build_sidecar():
         str(tauri_bin_dir),
     ]
 
+    pyinstaller_cmd.extend(["--paths", str(sidecar_dir)])
+
     for imp in hidden_imports:
         pyinstaller_cmd.extend(["--hidden-import", imp])
 

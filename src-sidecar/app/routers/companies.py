@@ -12,7 +12,7 @@ router = APIRouter(prefix="/companies", tags=["Companies"])
 
 
 def _persist_companies(companies: List[dict]) -> None:
-    """Upserts a list of normalized live company profiles into SQLite."""
+    """Upserts a list of normalized company profiles into SQLite."""
     conn = get_db_connection()
     try:
         with conn:
@@ -26,7 +26,7 @@ def _persist_companies(companies: List[dict]) -> None:
                         sector=excluded.sector,
                         isin=excluded.isin,
                         market=excluded.market,
-                        is_seed_data=excluded.is_seed_data;
+                        is_seed_data=0;
                     """,
                     comp,
                 )
@@ -36,12 +36,12 @@ def _persist_companies(companies: List[dict]) -> None:
 
 @router.get("")
 async def list_companies(search: Optional[str] = Query(None, description="Search ticker or name")):
-    """List cached companies in SQLite. If a BörsAPI key is present, also fetches and caches live matches."""
+    """List companies. If a BörsAPI key is present, fetches and caches live matches from BörsAPI cloud."""
+    api_key = get_api_key()
 
-    # When searching and a key exists, try to bring in live BörsAPI companies first.
-    if search and get_api_key():
+    if api_key:
         try:
-            raw_companies = await BorsApiClient(api_key=get_api_key()).get_companies(search=search.strip(), limit=50)
+            raw_companies = await BorsApiClient(api_key=api_key).get_companies(search=search.strip() if search else None, limit=100)
             normalized = [
                 c for c in (normalizer.normalize_company(comp) for comp in raw_companies)
                 if c and c.get("ticker")
@@ -55,11 +55,11 @@ async def list_companies(search: Optional[str] = Query(None, description="Search
     if search:
         query = "%" + search.strip() + "%"
         rows = conn.execute(
-            "SELECT * FROM companies WHERE ticker LIKE ? OR name LIKE ? ORDER BY is_seed_data DESC, ticker ASC",
+            "SELECT * FROM companies WHERE ticker LIKE ? OR name LIKE ? ORDER BY ticker ASC",
             (query, query),
         ).fetchall()
     else:
-        rows = conn.execute("SELECT * FROM companies ORDER BY is_seed_data DESC, ticker ASC").fetchall()
+        rows = conn.execute("SELECT * FROM companies ORDER BY ticker ASC").fetchall()
     conn.close()
 
     return [dict(row) for row in rows]
