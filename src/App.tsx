@@ -26,6 +26,8 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { PriceChart } from "@/components/charts/PriceChart";
 import { FinancialTable } from "@/components/financials/FinancialTable";
 import { FreemiumModal } from "@/components/modals/FreemiumModal";
+import { LogConsoleModal } from "@/components/modals/LogConsoleModal";
+import { logger, LogEntry } from "@/lib/logger";
 
 export default function App() {
   const [selectedTicker, setSelectedTicker] = useState("VOLV-B");
@@ -39,6 +41,19 @@ export default function App() {
   const [activeView, setActiveView] = useState<"CHART" | "TABLE">("CHART");
   const [sidecarStatus, setSidecarStatus] = useState<"connecting" | "online" | "offline">("connecting");
   const [sidecarVersion, setSidecarVersion] = useState<string | null>(null);
+
+  // Diagnostic Log Console State
+  const [isLogConsoleOpen, setIsLogConsoleOpen] = useState(false);
+  const [logCount, setLogCount] = useState(0);
+  const [errorCount, setErrorCount] = useState(0);
+
+  // Subscribe to logger for real-time error badge in header
+  useEffect(() => {
+    return logger.subscribe((logs) => {
+      setLogCount(logs.length);
+      setErrorCount(logs.filter((l) => l.level === "ERROR").length);
+    });
+  }, []);
 
   // Freemium Modal State
   const [isFreemiumModalOpen, setIsFreemiumModalOpen] = useState(false);
@@ -147,8 +162,20 @@ export default function App() {
           </span>
         </div>
 
-        {/* Demo Mode / BörsAPI Status */}
+        {/* Demo Mode / BörsAPI Status & Log Console */}
         <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setIsLogConsoleOpen(true)}
+            className={`flex items-center space-x-1.5 px-2.5 py-1 text-xs border transition-none font-mono ${
+              errorCount > 0
+                ? "bg-red-950/60 text-red-400 border-red-800 animate-pulse"
+                : "bg-[#0a0a0a] text-neutral-300 border-[#262626] hover:bg-[#171717]"
+            }`}
+            title="Öppna diagnostik och systemloggar"
+          >
+            <span>[ LOGGAR {errorCount > 0 ? `(${errorCount} FEL)` : `(${logCount})`} ]</span>
+          </button>
+
           <div className="flex items-center space-x-2 bg-[#0a0a0a] border border-[#262626] px-2.5 py-1 text-neutral-300">
             <Database className="w-3.5 h-3.5 text-neutral-400" />
             <span className="text-xs">
@@ -320,6 +347,12 @@ export default function App() {
         hasApiKey={hasApiKey}
         onSaveApiKey={handleSaveApiKey}
         onDeleteApiKey={handleDeleteApiKey}
+      />
+
+      {/* Diagnostic Terminal Log Console Modal */}
+      <LogConsoleModal
+        isOpen={isLogConsoleOpen}
+        onClose={() => setIsLogConsoleOpen(false)}
       />
     </div>
   );

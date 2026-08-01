@@ -22,11 +22,16 @@ async def save_api_key(payload: ApiKeyPayload):
         raise HTTPException(status_code=422, detail="API-nyckeln får inte vara tom.")
 
     client = BorsApiClient(api_key=api_key)
-    valid = await client.validate_api_key()
+    try:
+        valid, reason = await client.validate_api_key_with_reason()
+    except Exception as e:
+        logger.error(f"Error validating API key: {e}")
+        valid, reason = False, "Kunde inte ansluta till BörsAPI."
+
     if not valid:
         raise HTTPException(
             status_code=422,
-            detail="Ogiltig BörsAPI-nyckel. Kontrollera nyckeln och försök igen.",
+            detail=reason or "Ogiltig BörsAPI-nyckel. Kontrollera nyckeln och försök igen.",
         )
 
     settings_store.set_api_key(api_key)

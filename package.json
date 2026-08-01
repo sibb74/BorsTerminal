@@ -8,6 +8,7 @@
     "dev:frontend": "vite",
     "dev:sidecar": "python3 -m uvicorn app.main:app --app-dir src-sidecar --reload --port 8000",
     "build": "tsc && vite build",
+    "test": "python3 -m pytest src-sidecar/tests",
     "preview": "vite preview",
     "tauri": "tauri"
   },

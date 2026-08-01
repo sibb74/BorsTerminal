@@ -42,13 +42,13 @@ class BorsApiClient:
                 logger.error(f"Failed to fetch companies from BörsAPI: {e}")
                 raise e
 
-    async def validate_api_key(self) -> bool:
+    async def validate_api_key_with_reason(self) -> tuple[bool, str]:
         """
-        Validates the configured API key by making a cheap request to BörsAPI.
-        Returns True if the key is accepted, False otherwise.
+        Validates the configured API key by making a request to BörsAPI.
+        Returns (True, "") if accepted, (False, "reason") if rejected.
         """
         if not self.api_key:
-            return False
+            return False, "Ingen API-nyckel angavs."
 
         url = f"{self.base_url}/companies"
         params = {"limit": 1}
@@ -56,13 +56,19 @@ class BorsApiClient:
             try:
                 response = await client.get(url, headers=self.headers, params=params)
                 if response.status_code in (401, 403):
-                    logger.warning("BörsAPI key rejected (401/403)")
-                    return False
+                    logger.warning(f"BörsAPI key rejected ({response.status_code})")
+                    return False, "Ogiltig BörsAPI-nyckel. Kontrollera nyckeln och försök igen."
                 response.raise_for_status()
-                return True
+                return True, ""
+            except httpx.TimeoutException:
+                return False, "Anslutningen till BörsAPI tog för lång tid (timeout)."
             except httpx.HTTPError as e:
                 logger.error(f"BörsAPI key validation failed: {e}")
-                return False
+                return False, f"Kommunikationsfel med BörsAPI: {e}"
+
+    async def validate_api_key(self) -> bool:
+        valid, _ = await self.validate_api_key_with_reason()
+        return valid
 
     async def get_financial_reports(self, company_id_or_ticker: str) -> List[Dict[str, Any]]:
         """Fetch financial reports (income statement, balance sheet, cash flow) for a company."""
